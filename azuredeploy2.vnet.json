@@ -1,0 +1,146 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "type": "string",
+       // "defaultValue": "TestVNet",
+        "metadata": {
+          "description": "Name for the new VNet."
+        }
+      },
+      "vnetPrefix": {
+        "type": "string",
+       // "defaultValue": "192.168.0.0/16",
+        "metadata": {
+          "description": "CIDR prefix for the VNet address space."
+        }
+      },
+      "frontEndSubnetName": {
+        "type": "string",
+        //"defaultValue": "FrontEnd",
+        "metadata": {
+          "description": "Name for the front end subnet."
+        }
+      },
+      "frontEndSubnetPrefix": {
+        "type": "string",
+        //"defaultValue": "192.168.1.0/24",
+        "metadata": {
+          "description": "CIDR address prefix for the front end subnet."
+        }
+      },
+      "frontEndNSGName": {
+        "type": "string",
+        "defaultValue": "NSG-BackEnd",
+        "metadata": {
+          "description": "Name for the NSG used to allow remote RDP"
+        }
+      }
+    },
+    "variables": {
+    },
+    "resources": [
+
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[parameters('frontEndNSGName')]",
+        "location": "[resourceGroup().location]",
+        "tags": {
+          "displayName": "NSG - Front End"
+        },
+        "properties": {
+          "securityRules": [
+            {
+              "name": "rdp-rule",
+              "properties": {
+                "description": "Allow RDP",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "Internet",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+              }
+            },
+            {
+              "name": "rule1",
+              "properties": {
+                "description": "Allow",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "Internet",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Inbound"
+              }
+            },
+            {
+                "name": "rule2",
+                "properties": {
+                  "description": "Allow",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80",
+                  "sourceAddressPrefix": "Internet",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 102,
+                  "direction": "Inbound"
+                }
+            },
+            {
+                "name": "web-rule3",
+                "properties": {
+                  "description": "Allow",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80",
+                  "sourceAddressPrefix": "Internet",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 103,
+                  "direction": "Inbound"
+                }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[parameters('vnetName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('frontEndNSGName'))]"
+        ],
+        "tags": {
+          "displayName": "VNet"
+        },
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[parameters('vnetPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[parameters('frontEndSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('frontEndSubnetPrefix')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontEndNSGName'))]"
+                }
+              }
+            }       ]
+        }
+      }
+  
+  
+    ]
+    }
