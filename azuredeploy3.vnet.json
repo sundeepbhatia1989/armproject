@@ -1,0 +1,242 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "vnetName": {
+        "type": "string",
+        "defaultValue": "TestVNet",
+        "metadata": {
+          "description": "Name for the new VNet."
+        }
+      },
+      "vnetPrefix": {
+        "type": "string",
+        "defaultValue": "10.0.0.0/16",                    //default value overwrite parameter value
+        "metadata": {
+          "description": "CIDR prefix for the VNet address space."
+        }
+      },
+      "frontEndSubnetName": {
+        "type": "string",
+        "defaultValue": "FrontEnd",
+        "metadata": {
+          "description": "Name for the front end subnet."
+        }
+      },
+      "frontEndSubnetPrefix": {
+        "type": "string",
+        "defaultValue": "10.0.1.0/24",
+        "metadata": {
+          "description": "CIDR address prefix for the front end subnet."
+        }
+      },
+      "frontEndNSGName": {
+        "type": "string",
+        "defaultValue": "NSG-Frontend",
+        "metadata": {
+          "description": "Name for the NSG used to allow remote RDP"
+        }
+      }
+       /**
+      ,
+      "backEndSubnetName": {
+        "type": "string",
+        //"defaultValue": "BackEnd",
+        "metadata": {
+          "description": "Name for the back end subnet."
+        }
+      },
+      "backEndSubnetPrefix": {
+        "type": "string",
+        //"defaultValue": "192.168.2.0/24",
+        "metadata": {
+          "description": "CIDR address prefix for the back end subnet."
+        }
+      },
+      "backEndNSGName": {
+        "type": "string",
+        //"defaultValue": "NSG-FrontEnd",
+        "metadata": {
+          "description": "Name for the NSG used to allow access to web servers on port 80"
+        }
+      }
+      **/
+    },
+    "variables": {
+    },
+    "resources": [
+      /**
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[parameters('backEndNSGName')]",
+        "location": "[resourceGroup().location]",
+        "tags": {
+          "displayName": "NSG - Remote Access"
+        },
+        "properties": {
+          "securityRules": [
+            {
+              "name": "allow-frontend",
+              "properties": {
+                "description": "Allow FE Subnet",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "1433",
+                "sourceAddressPrefix": "[parameters('frontEndSubnetPrefix')]",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+              }
+            },
+            {
+              "name": "block-internet",
+              "properties": {
+                "description": "Block Internet",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "Internet",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Outbound"
+              }
+            }
+  
+          ]
+        }
+      },
+      **/
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[parameters('frontEndNSGName')]",
+        "location": "[resourceGroup().location]",
+        "tags": {
+          "displayName": "NSG - Front End"
+        },
+        "properties": {
+          "securityRules": [
+            {
+              "name": "BCN_EMEA",
+              "properties": {
+                "description": "Allow_BCN_EMEA",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "194.39.218.0/23",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 500,
+                "direction": "Inbound"
+              }
+            },
+            {
+              "name": "BCN_APAC_India",
+              "properties": {
+                "description": "Allow_BCN_APAC_India",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "103.205.152.0/22",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 200,
+                "direction": "Inbound"
+              }
+            },
+            {
+              "name": "IntRAS_EMEA",
+              "properties": {
+                "description": "Allow_IntRAS_EMEA",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "139.15.99.64/27",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 600,
+                "direction": "Inbound"
+              }
+            },
+            /**
+            {
+              "name": "PTDevOpsAgentPool",
+              "properties": {
+                "description": "Allow_PTDevOpsAgentPool",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "80",
+                "sourceAddressPrefix": "Internet",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 700,
+                "direction": "Inbound"
+              }
+            },
+            **/
+            {
+              "name": "block-internet",
+              "properties": {
+                "description": "Block Internet",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "Internet",
+                "access": "Deny",
+                "priority": 1000,
+                "direction": "Inbound"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[parameters('vnetName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('frontEndNSGName'))]",
+          //"[concat('Microsoft.Network/networkSecurityGroups/', parameters('backEndNSGName'))]"
+        ],
+        "tags": {
+          "displayName": "VNet"
+        },
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[parameters('vnetPrefix')]"
+            ]
+          },
+          "subnets": [
+            {
+              "name": "[parameters('frontEndSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('frontEndSubnetPrefix')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontEndNSGName'))]"
+                }
+              }
+            }
+            /**
+            ,
+            {
+              "name": "[parameters('backEndSubnetName')]",
+              "properties": {
+                "addressPrefix": "[parameters('backEndSubnetPrefix')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('backEndNSGName'))]"
+                }
+              }
+            }
+            **/
+          ]
+        }
+      }
+
+    ]
+    }

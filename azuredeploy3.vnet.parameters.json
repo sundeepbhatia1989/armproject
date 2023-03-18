@@ -1,0 +1,32 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetName": {
+            "value": "TestVNet"
+        },
+        "vnetPrefix": {
+            "value": "10.0.0.0/16"
+        },
+        "frontEndSubnetName": {
+            "value": "FrontEnd"
+        },
+        "frontEndSubnetPrefix": {
+            "value": "10.0.1.0/24"
+        },
+        "frontEndNSGName": {
+            "value": "NSG-Frontend"
+        }
+        /**,
+        "backEndSubnetName": {
+            "value": "BackEnd"
+        },
+        "backEndSubnetPrefix": {
+            "value": "192.168.2.0/24"
+        },
+        "backEndNSGName": {
+            "value": "NSG-FrontEnd"
+        }
+        **/
+    }
+}
