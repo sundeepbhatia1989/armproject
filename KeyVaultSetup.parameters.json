@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyVaultName": {
+            "value": "keyvault122324" // TODO: Fill in parameter value
+        },
+        "tenantId": {
+            "value": "0ae51e19-07c8-4e4b-bb6d-648ee58410f4" // TODO: Fill in parameter value
+        },
+        "objectId": {
+            "value": "c3882d0c-cd1e-456a-896a-e5a00f407af3" // TODO: Fill in parameter value
+        },
+        "keysPermissions": {
+            "value": [ "all" ]
+        },
+        "secretsPermissions": {
+            "value": [ "all" ]
+        },
+        "vaultSku": {
+            "value": "Standard"
+        },
+        "enabledForDeployment": {
+            "value": false
+        },
+        "enabledForTemplateDeployment": {
+            "value": true
+        },
+        "enableVaultForVolumeEncryption": {
+            "value": false                  //very important point.
+        },
+        "secretName": {
+            "value": "secret1234" // TODO: Fill in parameter value
+        },
+        "secretValue": {
+            "value": "serestvalure" // TODO: Fill in parameter value
+        }
+    }
+}
